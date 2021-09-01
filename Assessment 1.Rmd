@@ -1,0 +1,187 @@
+---
+title: "Assessment 1.1"
+author: "Chiu Yee Lim 4663994"
+date: "01/09/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("knitr")
+library(knitr)
+install.packages("skimr")
+library(skmir)
+install.packages("gglpot2")
+library(ggplot2)
+
+### Part 1
+
+# RMarkdown
+
+***R Markdown provides an authoring framework for data science. You can use a single R Markdown file to save and execute code or generate high quality reports that can be shared with an audience. R markdown documents are fully reproducible and support dozens of static and dynamic output formats.***
+
+[link](https://rmarkdown.rstudio.com/lesson-8.html)
+
+### Q6
+
+```{r}
+fastfood <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv")
+```
+
+### Q7
+
+```{r}
+fastfood %>% head(10)
+```
+
+```{r}
+knitr::kable(fastfood[1:10, 1:5])
+```
+
+### Q8: More than 1000 calories
+
+```{r}
+fastfood %>%
+  filter(calories > 1000)
+```
+
+### Q9: New Variable(dont_eat_this)
+
+```{r}
+dont_eat_this<-fastfood %>%
+  filter(total_fat>40 & total_carb>80)
+```
+
+### Q10: Mcdonalds
+
+```{r}
+fastfood %>%
+  filter(restaurant == 'Mcdonalds')
+```
+
+
+### Part 2
+
+### Q11: 'skimr' package
+
+```{r}
+fastfood %>% skim()
+```
+
+### Q12: Count of each restaurant
+
+```{r}
+fastfood %>%
+  count(restaurant)
+```
+
+### Q13: Grouppings
+
+```{r}
+fastfood %>%
+  group_by(restaurant) %>%
+  summarize(average_cal = mean(calories))
+```
+
+### Q14: New variable(average_calories)
+
+```{r}
+average_calories<-fastfood %>%
+  group_by(restaurant) %>%
+  mutate(average_calories = mean(calories)) %>%
+  ungroup()
+```
+
+### Q15: Data Vis of total fat
+
+```{r}
+fastfood %>%
+  ggplot(aes(restaurant,total_fat, fill=restaurant))+
+  geom_col()
+```
+
+### On column chart, it represent the categories (restaurant) by using X axis (horizontal axis) and represent the numerical or data (total_fat) by using Y axis (vertical axis). By using column charts, we can easily to read and understand the difference between all the categories depends on the height differences.
+
+
+### Q16: New variable(max_total_fat)
+
+```{r}
+max_total_fat<-fastfood %>%
+  group_by(restaurant) %>%
+  mutate(max_total_fat = max(total_fat)) %>%
+  ungroup()
+```
+
+### Q17: geom_point
+
+```{r}
+fastfood %>%
+  filter(restaurant == 'Mcdonalds') %>%
+  ggplot(.,aes(sugar,protein))+
+  geom_point()
+```
+
+
+### Part 3
+
+### Q18: Factors
+
+```{r}
+fastfood$restaurant<-as_factor(fastfood$restaurant)
+class(fastfood$restaurant)
+```
+
+### Q19 Cut_number
+
+```{r}
+fastfood<-fastfood %>%
+  mutate(calories_type = cut_number(fastfood$calories, 3, labels = c("low", "med","high")))
+```
+
+### Q20: Data Viz (calories_type)
+
+```{r}
+fastfood %>% 
+  count(restaurant, calories_type, sort=TRUE) %>% 
+  ggplot(aes(n,calories_type,fill=factor(calories_type))) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~restaurant) +
+  theme_linedraw()
+```
+
+### Q21: New variable (trans_fat_percent)
+
+```{r}
+fastfood<-fastfood%>%
+  mutate(trans_fat_percent = round (fastfood$trans_fat/fastfood$total_fat*100,2))
+```
+
+### Q22: Data Vis (trans_fat)
+
+```{r}
+fastfood%>%
+  ggplot(aes(restaurant, trans_fat, color=restaurant, fill=restaurant)) + 
+  geom_point(alpha=0.4, position="jitter")
+```
+
+### Q23: average of total fat
+
+```{r}
+fastfood %>%
+  group_by(restaurant) %>%
+  summarise(average_fat = mean(total_fat))
+```
+
+### Q24: Data viz (total fat)
+
+```{r}
+fastfood%>%
+  ggplot(aes(restaurant, total_fat,fill=restaurant)) +
+  geom_boxplot()
+```
+
