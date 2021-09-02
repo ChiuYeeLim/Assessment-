@@ -9,14 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-install.packages("tidyverse")
+```{r}
 library(tidyverse)
-install.packages("knitr")
 library(knitr)
-install.packages("skimr")
-library(skmir)
-install.packages("gglpot2")
+library(skimr)
 library(ggplot2)
+```
 
 ### Part 1
 
@@ -104,7 +102,7 @@ fastfood %>%
   geom_col()
 ```
 
-### On column chart, it represent the categories (restaurant) by using X axis (horizontal axis) and represent the numerical or data (total_fat) by using Y axis (vertical axis). By using column charts, we can easily to read and understand the difference between all the categories depends on the height differences.
+#### On column chart, it represent the categories (restaurant) by using X axis (horizontal axis) and represent the numerical or data (total_fat) by using Y axis (vertical axis). By using column charts, we can easily to read and understand the difference between all the categories depends on the height differences.
 
 
 ### Q16: New variable(max_total_fat)
