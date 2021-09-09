@@ -1,0 +1,228 @@
+---
+title: "Assignment 2"
+author: "Chiu Yee Lim 4663994"
+date: "09/09/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(skimr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+```
+
+### Part 1: Formatting RMarkdown document
+
+## *Chiu Yee Lim* 
+## **4663994**
+
+----------------------
+
+# Assignment 2
+
+----------------------
+
+![My Photo](https://scontent.fsyd11-2.fna.fbcdn.net/v/t1.6435-9/168406771_3867687376654491_2334858699671999274_n.jpg?_nc_cat=100&ccb=1-5&_nc_sid=730e14&_nc_ohc=WnbjoLvYuBQAX9cetut&_nc_ht=scontent.fsyd11-2.fna&oh=fd63d17d6514115c7a558dab5f413dfb&oe=61555A5C)
+
+
+### Part 2: Data Wrangling and visualization
+
+```{r}
+thanksgiving_meals <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv")
+```
+
+### Q1: First rows of thanksgiving_meals
+
+```{r}
+thanksgiving_meals %>% 
+  head(10)%>%
+  kable()
+```
+
+### Q2: Create a factor variable by using 'fct_reorder' and 'parse_number'
+
+```{r}
+thanksgiving_meals %>%
+  mutate(family_income=fct_reorder(family_income, parse_number(family_income))) %>%
+  kable()
+```
+
+### Q3: General statistics of thanksgiving_meals
+
+### By using 'summary()'
+
+```{r}
+thanksgiving_meals %>% 
+  summary()%>%
+  kable()
+```
+
+### By using 'skim()'
+
+```{r}
+thanksgiving_meals %>%
+  skim() %>%
+  kable()
+```
+
+### Q4: Calculate the total number of people who celebrated thanksgiving
+
+```{r}
+thanksgiving_meals %>% 
+  filter(celebrate=="Yes") %>%
+  count() %>%
+  kable()
+```
+
+### Q5: Calculate number of people who celebrated thanksgiving and had meals for main dish served (main_dish and main_prep)
+
+```{r}
+thanksgiving_meals%>%
+  filter(celebrate!='No')%>%
+  count(main_dish, main_prep,sort=TRUE)%>%
+  kable()
+```
+
+### Q6: Data visualization represent the number of people who celebrated thanksgiving and had meals (main_dish againts main_prep)
+
+```{r}
+thanksgiving_meals %>%
+  filter(celebrate!='No')%>%
+  count(main_dish, main_prep, sort=TRUE) %>%
+  ggplot(aes(n,main_dish,fill=factor(main_prep))) +  
+  geom_col(position='stack',alpha=1) +
+  coord_flip() +
+  theme_bw()
+```
+
+### Q7: Total number of cranberry used and total number of gravy used
+
+### Total number of Cranberry Used
+
+```{r}
+thanksgiving_meals %>% 
+  filter(cranberry!='None') %>%
+   count() %>%
+  kable()
+```
+
+### Total number of gravy Used
+
+```{r}
+thanksgiving_meals %>% 
+  filter(gravy == 'Yes') %>%
+   count() %>%
+  kable()
+```
+
+### Q8: Number of people who celebrated thanksgiving according their range of family income.
+
+```{r}
+thanksgiving_meals %>%
+  count(celebrate,family_income,sort=TRUE) %>%
+  filter(celebrate == 'Yes') %>%
+  group_by(family_income)%>%
+  kable()
+```
+
+### Q9: Data Visualization represent the number of people who celebrated thanksgiving againts their range of family income.
+
+```{r}
+thanksgiving_meals %>%
+  count(celebrate,family_income,sort=TRUE) %>%
+  filter(celebrate == 'Yes') %>%
+  group_by(family_income) %>%
+  ggplot(aes(family_income,n,fill=celebrate)) +
+  geom_col() +
+  coord_flip() +
+  labs(x="Range of family income", y="Number of people who celebrated thanksgiving") +
+  theme_minimal()
+```
+
+### Q10: The most common type and number of pies, sides and desserts
+
+### The most common type and number for pies 
+
+```{r}
+most_common_pie<- thanksgiving_meals %>%
+  select(starts_with("pie"),-pie13) %>%
+  gather(type, value,na.rm=TRUE) %>%
+  count(type,value, sort = TRUE) %>%
+  select(value, n) %>%
+  head(1)
+```
+
+### The most common type and number for sides
+
+```{r}
+most_common_side<-thanksgiving_meals %>%
+  select(starts_with("side"),-side15) %>%
+  gather(type, value,na.rm=TRUE) %>%
+  count(type,value, sort = TRUE) %>%
+  select(value, n)%>%
+  head(1)
+```
+
+### The most common type and number for desserts
+
+```{r}
+most_common_dessert<-thanksgiving_meals%>%
+  select(starts_with("dessert"),-dessert11) %>%
+  gather(type, value,na.rm=TRUE) %>%
+  count(type,value, sort = TRUE) %>%
+  filter(value!="None") %>%
+  select(value, n) %>%
+  head(1)
+```
+
+### Q11: Data Visualization for the most common types and number of pies, sides and desserts
+
+```{r}
+combined_most_Common<-rbind(most_common_pie ,most_common_side ,most_common_dessert)
+
+combined_most_Common%>%
+  ggplot(aes(value,n,fill=value)) +
+  geom_col() +
+  scale_fill_discrete(name= "Dishes", labels = c("dessert", "side", "pie"))+
+  labs(title= "Most common type and number for pies, side and desserts", x="Most Common of dishes", y="Number of most common dishes") +
+  theme_classic()
+```
+
+### Q12: Calculate the number of main_dish depends on the people who celebrated thanksgiving in different range of family income
+
+```{r}
+thanksgiving_meals %>%
+  filter(celebrate == "Yes") %>%
+  select(family_income,main_dish)%>%
+  count(family_income,main_dish)%>%
+  kable()
+```
+
+### Q13: Data visualization for the number of main_dish depends on the people who celebrated thanksgiving in different range of family income
+
+```{r}
+thanksgiving_meals %>%
+  filter(celebrate == 'Yes') %>%
+  select(family_income, main_dish) %>%
+  count(family_income, main_dish) %>%
+  ggplot(aes(family_income,n,fill=main_dish)) +
+  geom_col() +
+  coord_flip() +
+  labs(x="Range of family income", y="Number of people who celebrated thanksgiving") +
+  theme_bw()
+```
+
+
+
+
+
+
+
+
+
