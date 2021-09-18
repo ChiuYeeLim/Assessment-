@@ -85,7 +85,7 @@ thanksgiving_meals %>%
 ```{r}
 thanksgiving_meals%>%
   filter(celebrate!='No')%>%
-  count(main_dish, main_prep,sort=TRUE)%>%
+  count(main_dish, main_prep)%>%
   kable()
 ```
 
@@ -94,7 +94,7 @@ thanksgiving_meals%>%
 ```{r}
 thanksgiving_meals %>%
   filter(celebrate!='No')%>%
-  count(main_dish, main_prep, sort=TRUE) %>%
+  count(main_dish, main_prep) %>%
   ggplot(aes(n,main_dish,fill=factor(main_prep))) +  
   geom_col(position='stack',alpha=1) +
   coord_flip() +
